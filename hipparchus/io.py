@@ -114,8 +114,8 @@ class Spectrum(object):
 
 class EchelleSpectrum(object):
     """
-    Echelle spectrum object, which stores each order as a `~hipparchus.Spectrum`
-    object.
+    Echelle spectrum object, which stores each order as a
+    `~hipparchus.Spectrum` object.
     """
     def __init__(self, orders):
         self.orders = orders
