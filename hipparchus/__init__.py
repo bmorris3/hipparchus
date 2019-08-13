@@ -26,5 +26,5 @@ if LooseVersion(sys.version) < LooseVersion(__minimum_python_version__):
 
 if not _ASTROPY_SETUP_:   # noqa
     # For egg_info test builds to pass, put package imports here.
-    from .io import *
-    from .ccf import *
+    from .io import *  # noqa
+    from .ccf import *  # noqa

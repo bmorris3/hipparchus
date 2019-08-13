@@ -61,7 +61,7 @@ class CCF(object):
             ax = plt.gca()
 
         ax.plot(self.velocities, self.ccf/np.median(self.ccf))
-        ax.set_xlabel('$\Delta v$ [km/s]')
+        ax.set_xlabel('$\Delta v$ [km/s]')  # noqa
         ax.set_ylabel('CCF')
         return ax
 

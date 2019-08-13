@@ -30,11 +30,11 @@ def read_wavelengths_from_HARPS_header(h):
 
     key_counter = 0
     for i in range(no):
-        l = x*0.0
+        lam = x*0.0
         for j in range(4):
-            l += h['ESO DRS CAL TH COEFF LL{0}'.format(key_counter)]*x**j
-            key_counter +=1
-        wave[:,i] = l
+            lam += h['ESO DRS CAL TH COEFF LL{0}'.format(key_counter)]*x**j
+            key_counter += 1
+        wave[:, i] = lam
     wave = wave.T
     return wave
 
@@ -63,11 +63,11 @@ def read_wavelengths_from_HARPS_N_header(h):
 
     key_counter = 0
     for i in range(no):
-        l = x*0.0
+        lam = x*0.0
         for j in range(4):
-            l += h['TNG DRS CAL TH COEFF LL{0}'.format(key_counter)]*x**j
-            key_counter +=1
-        wave[:,i] = l
+            lam += h['TNG DRS CAL TH COEFF LL{0}'.format(key_counter)]*x**j
+            key_counter += 1
+        wave[:, i] = lam
     wave = wave.T
     return wave
 
