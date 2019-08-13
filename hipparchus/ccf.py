@@ -3,13 +3,13 @@ import astropy.units as u
 from scipy.interpolate import interp1d
 from scipy.ndimage import gaussian_filter1d
 import matplotlib.pyplot as plt
-
+from astropy.stats import mad_std
 
 __all__ = ['CCF', 'cross_corr']
 
 
 def cross_corr(spectrum, template, start_lam=-2, end_lam=2, n_steps=1000,
-               sigma=None):
+               sigma=None, spread_factor=10):
     """
     Cross-correlation of the spectrum and template.
 
@@ -35,7 +35,8 @@ def cross_corr(spectrum, template, start_lam=-2, end_lam=2, n_steps=1000,
 
     if sigma is None:
         sigma = ((spectrum.wavelength[1] - spectrum.wavelength[0]) /
-                 (template.wavelength[1] - template.wavelength[0]))
+                 (template.wavelength[1] - template.wavelength[0]) /
+                 spread_factor)
 
     smoothed_emission = gaussian_filter1d(template.emission, sigma)
     T = interp1d(template.wavelength, smoothed_emission, bounds_error=False,
@@ -59,5 +60,15 @@ class CCF(object):
         if ax is None:
             ax = plt.gca()
 
-        ax.plot(self.velocities, self.ccf/np.median(self.ccf), 'k')
+        ax.plot(self.velocities, self.ccf/np.median(self.ccf))
+        ax.set_xlabel('$\Delta v$ [km/s]')
+        ax.set_ylabel('CCF')
         return ax
+
+    @property
+    def rv(self):
+        return self.velocities[np.argmin(self.ccf)]
+
+    @property
+    def signal_to_noise(self):
+        return (np.median(self.ccf) - self.ccf.min()) / mad_std(self.ccf)

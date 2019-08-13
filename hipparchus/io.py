@@ -169,7 +169,7 @@ class EchelleSpectrum(object):
         if ax is None:
             ax = plt.gca()
 
-        for sp in self.order:
+        for sp in self.orders:
             ax.plot(sp.wavelength, sp.flux, **kwargs)
 
         return ax
@@ -197,6 +197,24 @@ class EchelleSpectrum(object):
             fit = np.polyval(np.polyfit(bincenters, bs.statistic, order),
                              wl - wl.mean())
             spectrum.flux /= fit
+
+    def nearest_order(self, wavelength):
+        """
+        Return the order with the central wavelength nearest to `wavelength`.
+
+        Parameters
+        ----------
+        wavelength : float
+            Reference wavelength
+
+        Returns
+        -------
+        spectrum : `~hipparchus.Spectrum`
+        """
+        min_ind = np.argmin(np.abs([sp.wavelength.mean() - wavelength
+                                    for sp in self.orders]))
+
+        return self.orders[min_ind]
 
 
 class Template(object):
@@ -275,5 +293,4 @@ class Template(object):
             ax = plt.gca()
 
         ax.plot(self.wavelength, self.emission, **kwargs)
-
         return ax
