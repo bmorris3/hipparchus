@@ -56,13 +56,13 @@ class CCF(object):
         self.velocities = velocities
         self.ccf = ccf
 
-    def plot(self, ax=None):
+    def plot(self, ax=None, **kwargs):
         if ax is None:
             ax = plt.gca()
 
-        ax.plot(self.velocities, self.ccf/np.median(self.ccf))
-        ax.set_xlabel('$\Delta v$ [km/s]')  # noqa
-        ax.set_ylabel('CCF')
+        ax.plot(self.velocities, self.ccf/np.median(self.ccf), **kwargs)
+        # ax.set_xlabel('$\Delta v$ [km/s]')  # noqa
+        # ax.set_ylabel('CCF')
         return ax
 
     @property

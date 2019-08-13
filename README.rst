@@ -1,9 +1,6 @@
 hipparchus
 ----------
 
-Cross-correlation functions of high resolution spectroscopy via the weighted-mean,
-as Hipparchus would have liked it.
-
 .. image:: http://img.shields.io/badge/powered%20by-AstroPy-orange.svg?style=flat
     :target: http://www.astropy.org
     :alt: Powered by Astropy Badge
@@ -15,6 +12,9 @@ as Hipparchus would have liked it.
 .. image:: https://readthedocs.org/projects/hipparchus/badge/?version=latest
     :target: https://hipparchus.readthedocs.io/en/latest/?badge=latest
     :alt: Documentation Status
+
+Cross-correlation functions with high resolution spectroscopy via the
+weighted-mean, as Hipparchus might have liked it.
 
 License
 -------
