@@ -2,6 +2,7 @@ name: hipparchus
 
 channels:
     - astropy
+    - conda-forge
 
 dependencies:
     - python>=3.5
@@ -9,6 +10,8 @@ dependencies:
     - Cython
     - matplotlib
     - sphinx-astropy
-    - pip:
-        - numpy
-        - scipy
+    - numpy
+    - scipy
+#    - pip:
+#        - numpy
+#        - scipy
