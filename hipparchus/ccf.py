@@ -45,16 +45,17 @@ def cross_corr(spectrum, template, start_lam=-2, end_lam=2, n_steps=1000,
     x = np.repeat(spectrum.flux[:, np.newaxis], n_steps, axis=1).T
 
     ccf = np.average(x, weights=T, axis=1)
-    return CCF(velocities, ccf)
+    return CCF(velocities, ccf, header=spectrum.header)
 
 
 class CCF(object):
     """
     Storage object for cross-correlation functions
     """
-    def __init__(self, velocities, ccf):
+    def __init__(self, velocities, ccf, header=None):
         self.velocities = velocities
         self.ccf = ccf
+        self.header = header
 
     def plot(self, ax=None, **kwargs):
         if ax is None:

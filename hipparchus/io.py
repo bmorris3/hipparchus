@@ -76,7 +76,7 @@ class Spectrum(object):
     """
     Simple spectrum object.
     """
-    def __init__(self, wavelength, flux):
+    def __init__(self, wavelength, flux, header=None):
         """
 
         Parameters
@@ -88,6 +88,7 @@ class Spectrum(object):
         """
         self.wavelength = wavelength
         self.flux = flux
+        self.header = header
 
     def plot(self, ax=None, **kwargs):
         """
@@ -117,8 +118,9 @@ class EchelleSpectrum(object):
     Echelle spectrum object, which stores each order as a
     `~hipparchus.Spectrum` object.
     """
-    def __init__(self, orders):
+    def __init__(self, orders, header=None):
         self.orders = orders
+        self.header = header
 
     @classmethod
     def from_e2ds(cls, path, harps=True):
@@ -146,10 +148,10 @@ class EchelleSpectrum(object):
 
         spectra = []
         for i in range(data.shape[0]):
-            sp = Spectrum(wl[i, :], data[i, :])
+            sp = Spectrum(wl[i, :], data[i, :], header)
             spectra.append(sp)
 
-        return cls(orders=spectra)
+        return cls(orders=spectra, header=header)
 
     def plot(self, ax=None, **kwargs):
         """
