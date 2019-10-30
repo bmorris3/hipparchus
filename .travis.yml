@@ -90,12 +90,6 @@ matrix:
           stage: Initial tests
           env: SETUP_CMD='test --coverage'
 
-        # Check for sphinx doc build warnings - we do this first because it
-        # may run for a long time
-        - os: linux
-          env: SETUP_CMD='build_docs -w'
-               CONDA_DEPENDENCIES=$CONDA_DEPENDENCIES_DOC
-
         # Do a PEP8 test with flake8
         - os: linux
           stage: Initial tests
