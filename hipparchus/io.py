@@ -260,11 +260,11 @@ class Template(object):
         wavelengths_air = wavelengths_vacuum / f
 
         # Bin spectrum and take max in wide bins, to approximate the continuum
-        bs = binned_statistic(wavelengths_air, template, bins=1000,
+        bs = binned_statistic(wavelengths_air, template, bins=100,
                               statistic='max')
         bincenters = 0.5 * (bs.bin_edges[1:] + bs.bin_edges[:-1])
 
-        template /= np.polyval(np.polyfit(bincenters, bs.statistic, 10),
+        template /= np.polyval(np.polyfit(bincenters, bs.statistic, 5),
                                wavelengths_air)
 
         template = -template + 1
