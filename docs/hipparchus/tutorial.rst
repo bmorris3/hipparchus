@@ -27,7 +27,7 @@ of Proxima Centauri that's currently hosted on Google Drive using astropy's
 (you could alternatively use any E2DS spectrum downloaded from the
 `ESO Archive <http://archive.eso.org/wdb/wdb/adp/phase3_main/form>`_). We now
 have a local copy of the spectrum of Proxima Cen. We can
-load this file into a `~hipparchus.EchelleSpectrum` object like so:
+load this file into an `~hipparchus.EchelleSpectrum` object like so:
 
 .. code-block:: python
 
@@ -192,7 +192,8 @@ using the `~hipparchus.cross_corr` function:
     spectrum = EchelleSpectrum.from_e2ds(proxima_spectrum_path)
 
     template_3000_tio_url = 'https://drive.google.com/uc?export=download&id=1eGUBfk7Q9zaXgJQJtVFB6pit7cmoGCpn'
-    template_3000_tio_path = download_file(template_3000_tio_url, cache=True)
+    template_3000_tio_path = download_file(template_3000_tio_url, cache=True,
+                                           show_progress=False)
     template_3000_tio = Template.from_npy(template_3000_tio_path)
 
     ccf = cross_corr(spectrum.nearest_order(6800), template_3000_tio)
@@ -220,10 +221,10 @@ molecular absorption features that don't occur elsewhere on the star.
 Proxima Centauri, for example, is a 3000 K star. At 3000 K, we don't expect to
 see significant absorption due to water molecules, but water begins to show
 absorption features in the optical at and below 2500 K at wavelengths
-greater than 5800 Angstroms. So let's cross-correlate the Proxima Centauri
-spectrum with the high resolution template for water at 2500 K to see if there
-is significant starspot coverage on Proxima Centauri with temperatures
-:math:`\Delta T \sim 500` K:
+greater than 5800 Angstroms. So let's cross-correlate each order of the Proxima
+Centauri echelle spectrum with the high resolution template for water at 2500 K
+to see if there is significant starspot coverage on Proxima Centauri with
+temperatures :math:`\Delta T \sim 500` K:
 
 .. code-block:: python
 
@@ -250,7 +251,8 @@ is significant starspot coverage on Proxima Centauri with temperatures
     spectrum = EchelleSpectrum.from_e2ds(proxima_spectrum_path)
 
     template_2500_h2o_url = 'https://drive.google.com/uc?export=download&id=1RIXBl3L3J_R9PQ-k_0BqAtO-9zYn2mag'
-    template_2500_h2o_path = download_file(template_2500_h2o_url)
+    template_2500_h2o_path = download_file(template_2500_h2o_url, cache=True,
+                                           show_progress=False)
     template_2500_h2o = Template.from_npy(template_2500_h2o_path)
 
     counter = -1
@@ -260,10 +262,13 @@ is significant starspot coverage on Proxima Centauri with temperatures
             ccf = cross_corr(order, template_2500_h2o)
             ccf.plot(label='{0:.0f} $\AA$'.format(order.wavelength.mean()),
                      color=plt.cm.magma(counter/20))
-    plt.legend(loc='lower right', fontsize=8, bbox_props=dict(alpha=1.0))
+    plt.legend(loc='lower right', fontsize=8)
     plt.xlabel('$\Delta v$ [km/s]')
     plt.ylabel('CCF')
 
+The CCF of each spectral order is shown with a different color curve.
 You can see that there are no spectral orders which show significant absorption
 at the radial velocity of Proxima Centauri (-22 km/s). This suggests there is
 not significant absorption due to water vapor in the atmosphere of Proxima Cen.
+This could suggest there is insignificant coverage by cool spots, the spots are
+hotter than 2500 K, or some combination of both scenarios.
