@@ -1,11 +1,21 @@
 Tutorials
 =========
 
+In this tutorial, we'll walk through an example where we download a HARPS E2DS
+echelle spectrum of Proxima Centauri. We'll also download two spectral
+templates -- one for TiO and another for water. We'll then take the
+cross-correlation of the TiO template with the stellar spectrum to show that
+there is significant TiO absorption in the atmosphere of this M5V star. Lastly,
+we'll hunt for cool starspots on the stellar surface by searching for cooler
+water absorption in the optical high resolution spectrum via the
+cross-correlation.
+
 Loading a spectrum
 ------------------
 
 First, we need a spectrum to work with, so we'll download a HARPS E2DS spectrum
-of Proxima Centauri that's currently hosted on Google Drive, like so:
+of Proxima Centauri that's currently hosted on Google Drive using astropy's
+`~astropy.utils.data.download_file` function, like so:
 
 .. code-block:: python
 
@@ -14,7 +24,9 @@ of Proxima Centauri that's currently hosted on Google Drive, like so:
     proxima_spectrum_url = 'https://drive.google.com/uc?export=download&id=1I7E1x1XRjcxXNQXiuaajb_Jz7Wn2N_Eo'
     proxima_spectrum_path = download_file(proxima_spectrum_url)
 
-We now have a local copy of the spectrum of Proxima Cen. We can
+(you could alternatively use any E2DS spectrum downloaded from the
+`ESO Archive <http://archive.eso.org/wdb/wdb/adp/phase3_main/form>`_). We now
+have a local copy of the spectrum of Proxima Cen. We can
 load this file into a `~hipparchus.EchelleSpectrum` object like so:
 
 .. code-block:: python
@@ -46,7 +58,7 @@ Continuum normalize
 -------------------
 
 Next we might want to continuum normalize each echelle order. We can do that
-simply with the following command:
+simply with the `~hipparchus.EchelleSpectrum.continuum_normalize` command:
 
 .. code-block:: python
 
@@ -115,13 +127,8 @@ load those templates into the `~hipparchus.Template` object:
     import matplotlib.pyplot as plt
     from hipparchus import Template
 
-    template_2500_h2o_url = 'https://drive.google.com/uc?export=download&id=1RIXBl3L3J_R9PQ-k_0BqAtO-9zYn2mag'
     template_3000_tio_url = 'https://drive.google.com/uc?export=download&id=1eGUBfk7Q9zaXgJQJtVFB6pit7cmoGCpn'
-
-    template_2500_h2o_path = download_file(template_2500_h2o_url, cache=True)
     template_3000_tio_path = download_file(template_3000_tio_url, cache=True)
-
-    template_2500_h2o = Template.from_npy(template_2500_h2o_path)
     template_3000_tio = Template.from_npy(template_3000_tio_path)
 
     template_3000_tio.plot()
@@ -163,7 +170,8 @@ molecule specified by the template at the velocity of the star.
 
 
 Let's compute the CCF between the template and the observed Proxima
-Cen spectrum in the echelle order nearest to the wavelength 6800 Angstroms:
+Cen spectrum in the echelle order nearest to the wavelength 6800 Angstroms
+using the `~hipparchus.cross_corr` function:
 
 .. code-block:: python
 
@@ -195,5 +203,67 @@ Cen spectrum in the echelle order nearest to the wavelength 6800 Angstroms:
 
 We can see a significant "mean absorption line" in the cross-correlation
 function of the TiO emission spectrum near the known radial velocity of
-Proxima Cen at -22 km/s. This is an (unsurprisingly) significant detection of
+Proxima Cen at -22 km/s. This is an unsurprisingly significant detection of
 TiO in the atmosphere of the cool star Proxima Centauri.
+
+The `~hipparchus.cross_corr` function returns a `~hipparchus.CCF` object, which
+stores the resulting cross-correlation function as a function of velocity and
+its metadata.
+
+Hunting for starspots
+---------------------
+
+Let's now hunt for starspots on Proxima Centauri. Starspots are cool regions on
+stellar surfaces where strong magnetic fields inhibit convection. Since
+starspots are cooler than the rest of the stellar photosphere, they may have
+molecular absorption features that don't occur elsewhere on the star.
+Proxima Centauri, for example, is a 3000 K star. At 3000 K, we don't expect to
+see significant absorption due to water molecules, but water begins to show
+absorption features in the optical at and below 2500 K at wavelengths
+greater than 5800 Angstroms. So let's cross-correlate the Proxima Centauri
+spectrum with the high resolution template for water at 2500 K to see if there
+is significant starspot coverage on Proxima Centauri with temperatures
+:math:`\Delta T \sim 500` K:
+
+.. code-block:: python
+
+    counter = -1
+    for order in spectrum.orders:
+        if order.wavelength.mean() > 5800:
+            counter += 1
+            ccf = cross_corr(order, template_2500_h2o)
+            ccf.plot(label='{0:.0f} $\AA$'.format(order.wavelength.mean()),
+                     color=plt.cm.magma(counter/20))
+    plt.legend(loc='lower right', fontsize=8)
+    plt.xlabel('$\Delta v$ [km/s]')
+    plt.ylabel('CCF')
+
+.. plot::
+
+    from astropy.utils.data import download_file
+    import matplotlib.pyplot as plt
+    from hipparchus import Template, EchelleSpectrum, cross_corr
+
+    proxima_spectrum_url = 'https://drive.google.com/uc?export=download&id=1I7E1x1XRjcxXNQXiuaajb_Jz7Wn2N_Eo'
+    proxima_spectrum_path = download_file(proxima_spectrum_url, cache=True,
+                                          show_progress=False)
+    spectrum = EchelleSpectrum.from_e2ds(proxima_spectrum_path)
+
+    template_2500_h2o_url = 'https://drive.google.com/uc?export=download&id=1RIXBl3L3J_R9PQ-k_0BqAtO-9zYn2mag'
+    template_2500_h2o_path = download_file(template_2500_h2o_url)
+    template_2500_h2o = Template.from_npy(template_2500_h2o_path)
+
+    counter = -1
+    for order in spectrum.orders:
+        if order.wavelength.mean() > 5800:
+            counter += 1
+            ccf = cross_corr(order, template_2500_h2o)
+            ccf.plot(label='{0:.0f} $\AA$'.format(order.wavelength.mean()),
+                     color=plt.cm.magma(counter/20))
+    plt.legend(loc='lower right', fontsize=8, bbox_props=dict(alpha=1.0))
+    plt.xlabel('$\Delta v$ [km/s]')
+    plt.ylabel('CCF')
+
+You can see that there are no spectral orders which show significant absorption
+at the radial velocity of Proxima Centauri (-22 km/s). This suggests there is
+not significant absorption due to water vapor in the atmosphere of Proxima Cen.

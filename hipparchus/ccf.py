@@ -19,6 +19,17 @@ def cross_corr(spectrum, template, start_lam=-2, end_lam=2, n_steps=1000,
         Spectrum object (may be an order of an echelle spectrum).
     template : `~hipparchus.Template`
         Template object to correlate against the spectrum.
+    start_lam : float
+        Start wavelength relative to mean wavelength
+    end_lam : float
+        End wavelength relative to mean wavelength
+    n_steps : int
+        Number of steps to compute the CCF over between ``start_lam`` and
+        ``end_lam``
+    sigma : float
+        Gaussian smoothing filter width (standard deviation)
+    spread_factor : float
+        Gaussian smoothing filter width spread scaling factor
 
     Returns
     -------
@@ -58,6 +69,21 @@ class CCF(object):
         self.header = header
 
     def plot(self, ax=None, **kwargs):
+        """
+        Plot the CCF.
+
+        Parameters
+        ----------
+        ax : `~matplotlib.axes.Axes`
+            Matplotlib axis object
+        kwargs : dict
+            Keyword arguments to pass to the matplotlib ``plot`` function
+
+        Returns
+        -------
+        ax : `~matplotlib.axes.Axes`
+            Matplotlib axis object
+        """
         if ax is None:
             ax = plt.gca()
 
@@ -68,8 +94,14 @@ class CCF(object):
 
     @property
     def rv(self):
+        """
+        Approximate radial velocity of the star
+        """
         return self.velocities[np.argmin(self.ccf)]
 
     @property
     def signal_to_noise(self):
+        """
+        Approximate signal-to-noise of the strongest absorption feature
+        """
         return (np.median(self.ccf) - self.ccf.min()) / mad_std(self.ccf)
