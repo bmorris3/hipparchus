@@ -9,10 +9,16 @@ from astropy.tests.helper import assert_quantity_allclose
 from ..io import EchelleSpectrum, Template, Spectrum
 from ..ccf import cross_corr
 
-lkca4_url = "https://drive.google.com/uc?export=download&id=1x3nIg1P5tYFQqJrwEpQU11XQOs3ImH3v"
-proxima_url = "https://drive.google.com/uc?export=download&id=1I7E1x1XRjcxXNQXiuaajb_Jz7Wn2N_Eo"
+lkca4_id = "1x3nIg1P5tYFQqJrwEpQU11XQOs3ImH3v"
+proxima_id = "1I7E1x1XRjcxXNQXiuaajb_Jz7Wn2N_Eo"
 # T=3000 K, Molecule=TiO:
-template_url = "https://drive.google.com/uc?export=download&id=1eGUBfk7Q9zaXgJQJtVFB6pit7cmoGCpn"
+template_id = "1eGUBfk7Q9zaXgJQJtVFB6pit7cmoGCpn"
+
+base_url = "https://drive.google.com/uc?export=download&id={0}"
+
+lkca4_url = base_url.format(lkca4_id)
+proxima_url = base_url.format(proxima_id)
+template_url = base_url.format(template_id)
 
 
 @pytest.mark.remote_data
