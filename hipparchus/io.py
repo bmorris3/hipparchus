@@ -151,7 +151,8 @@ class EchelleSpectrum(object):
             sp = Spectrum(wl[i, :], data[i, :], header)
             spectra.append(sp)
 
-        return cls(orders=spectra, header=header)
+        return cls(orders=sorted(spectra, key=lambda x: x.wavelength.mean()),
+                   header=header)
 
     def plot(self, ax=None, **kwargs):
         """

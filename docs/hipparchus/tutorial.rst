@@ -2,24 +2,28 @@ Tutorials
 =========
 
 In this tutorial, we'll walk through an example where we download a HARPS E2DS
-echelle spectrum of Proxima Centauri. We'll also download two spectral
-templates -- one for TiO and another for water. We'll then take the
-cross-correlation of the TiO template with the stellar spectrum to show that
-there is significant TiO absorption in the atmosphere of this M5V star. Lastly,
-we'll hunt for cool starspots on the stellar surface by searching for cooler
-water absorption in the optical high resolution spectrum via the
-cross-correlation.
+echelle spectrum of LkCa 4, and Proxima Centauri. We'll also download two
+spectral templates -- one for TiO and another for water. We'll then take the
+cross-correlation of the TiO template with the stellar spectra to show that
+there is significant TiO absorption in the atmosphere of Proxima, an M5V star,
+and more interestingly, that there is also TiO absorption in the atmosphere of
+LkCa 4, a "K7" star. Lastly, we'll hunt for cool starspots on the stellar
+surface by searching for cooler water absorption in the optical high resolution
+spectrum via the cross-correlation.
 
 Loading a spectrum
 ------------------
 
 First, we need a spectrum to work with, so we'll download a HARPS E2DS spectrum
-of Proxima Centauri that's currently hosted on Google Drive using astropy's
-`~astropy.utils.data.download_file` function, like so:
+of LkCa 4 and Proxima Centauri that's currently hosted on Google Drive using
+astropy's `~astropy.utils.data.download_file` function, like so:
 
 .. code-block:: python
 
     from astropy.utils.data import download_file
+
+    lkca4_spectrum_url = 'https://drive.google.com/uc?export=download&id=1x3nIg1P5tYFQqJrwEpQU11XQOs3ImH3v'
+    lkca4_spectrum_path = download_file(lkca4_spectrum_url)
 
     proxima_spectrum_url = 'https://drive.google.com/uc?export=download&id=1I7E1x1XRjcxXNQXiuaajb_Jz7Wn2N_Eo'
     proxima_spectrum_path = download_file(proxima_spectrum_url)
@@ -33,9 +37,10 @@ load this file into an `~hipparchus.EchelleSpectrum` object like so:
 
     from hipparchus import EchelleSpectrum
 
-    spectrum = EchelleSpectrum.from_e2ds(proxima_spectrum_path)
+    lkca4_spectrum = EchelleSpectrum.from_e2ds(lkca4_spectrum_path)
+    proxima_spectrum = EchelleSpectrum.from_e2ds(proxima_spectrum_path)
 
-    spectrum.plot()
+    proxima_spectrum.plot()
 
 .. plot::
 
@@ -48,9 +53,9 @@ load this file into an `~hipparchus.EchelleSpectrum` object like so:
 
     from hipparchus import EchelleSpectrum
 
-    spectrum = EchelleSpectrum.from_e2ds(proxima_spectrum_path)
+    proxima_spectrum = EchelleSpectrum.from_e2ds(proxima_spectrum_path)
 
-    spectrum.plot()
+    proxima_spectrum.plot()
     plt.xlabel('Wavelength [$\AA$]')
     plt.ylabel('Counts')
 
@@ -62,8 +67,11 @@ simply with the `~hipparchus.EchelleSpectrum.continuum_normalize` command:
 
 .. code-block:: python
 
-    spectrum.continuum_normalize()
-    spectrum.plot()
+    lkca4_spectrum.continuum_normalize()
+
+    proxima_spectrum.continuum_normalize()
+
+    proxima_spectrum.plot()
 
 .. plot::
 
@@ -142,7 +150,7 @@ compute the cross-correlation via the weighted mean.
 Cross correlation
 -----------------
 
-So we have a spectrum, and a template. Now let's take the cross-correlation of
+So we have spectra, and a template. Now let's take the cross-correlation of
 the two! We define the cross-correlation function (CCF) for an observed
 spectrum :math:`x`, given a template spectrum evaluated at a specific velocity
 :math:`T(v)`,
@@ -177,7 +185,7 @@ using the `~hipparchus.cross_corr` function:
 
     from hipparchus import cross_cor
 
-    ccf = cross_corr(spectrum.nearest_order(6800), template_3000_tio)
+    ccf = cross_corr(proxima_spectrum.nearest_order(6800), template_3000_tio)
     ccf.plot()
 
 .. plot::
@@ -211,6 +219,45 @@ The `~hipparchus.cross_corr` function returns a `~hipparchus.CCF` object, which
 stores the resulting cross-correlation function as a function of velocity and
 its metadata.
 
+Let's now take the CCF of the LkCa 4 spectrum and the TiO template:
+
+.. code-block:: python
+
+
+    from hipparchus import cross_cor
+
+    ccf = cross_corr(lkca4_spectrum.nearest_order(6800), template_3000_tio)
+    ccf.plot()
+
+.. plot::
+
+    from astropy.utils.data import download_file
+    import matplotlib.pyplot as plt
+    from hipparchus import Template, EchelleSpectrum, cross_corr
+
+    lkca4_spectrum_url = 'https://drive.google.com/uc?export=download&id=1x3nIg1P5tYFQqJrwEpQU11XQOs3ImH3v'
+    lkca4_spectrum_path = download_file(lkca4_spectrum_url, cache=True,
+                                          show_progress=False)
+    spectrum = EchelleSpectrum.from_e2ds(lkca4_spectrum_path)
+
+    template_3000_tio_url = 'https://drive.google.com/uc?export=download&id=1eGUBfk7Q9zaXgJQJtVFB6pit7cmoGCpn'
+    template_3000_tio_path = download_file(template_3000_tio_url, cache=True,
+                                           show_progress=False)
+    template_3000_tio = Template.from_npy(template_3000_tio_path)
+
+    ccf = cross_corr(spectrum.nearest_order(6800), template_3000_tio)
+    ccf.plot()
+
+    plt.xlabel('Radial Velocity [km/s]')
+    plt.ylabel('CCF')
+
+Despite LkCa 4 being classified as a K dwarf, this CCF shows a significant
+absorption signal due to TiO. This absorption can be understood in the context
+of the really neat paper by
+`Gully-Santiago et al 2017 <https://ui.adsabs.harvard.edu/abs/2017ApJ...836..200G/abstract>`_,
+who showed that this star is roughly 80% covered in cool, dark regions where it
+is cool enough for TiO to form, and 20% covered by hot, bright regions.
+
 Hunting for starspots
 ---------------------
 
@@ -229,7 +276,7 @@ temperatures :math:`\Delta T \sim 500` K:
 .. code-block:: python
 
     counter = -1
-    for order in spectrum.orders:
+    for order in proxima_spectrum.orders:
         if order.wavelength.mean() > 5800:
             counter += 1
             ccf = cross_corr(order, template_2500_h2o)
