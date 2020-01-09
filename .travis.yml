@@ -67,7 +67,7 @@ env:
         # If you want to ignore certain flake8 errors, you can list them
         # in FLAKE8_OPT, for example:
         # - FLAKE8_OPT='--ignore=E501'
-        - FLAKE8_OPT=''
+        - FLAKE8_OPT='--max-line-length=100'
 
 matrix:
 
@@ -89,6 +89,11 @@ matrix:
         - os: linux
           stage: Initial tests
           env: SETUP_CMD='test --coverage'
+
+        # Do a test with remote-data turned on.
+        - os: linux
+          stage: Initial tests
+          env: SETUP_CMD='test --remote-data'
 
         # Do a PEP8 test with flake8
         - os: linux
